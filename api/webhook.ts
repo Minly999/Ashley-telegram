@@ -1,4 +1,4 @@
 import { webhookCallback } from "grammy";
 import bot from "../src/bot.js";
 
-export default webhookCallback(bot, "std/http");
+export default webhookCallback(bot, "http");
