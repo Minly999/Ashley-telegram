@@ -10,7 +10,7 @@ import redisInstance from "./redis.js";
 import { config } from "./config.js";
 import { parseScheduleProtocol } from "./parser.js";
 import { saveDaySchedule, getDaySchedule, getFullSchedule } from "./storage.js";
-import { getActiveWeekDates, parseUserInputToDate } from "./dateUtils.js";
+import { getActiveWeekDates, parseUserInputToDate, getWeekdayName } from "./dateUtils.js";
 
 // Session data structure
 interface SessionData {
@@ -81,7 +81,11 @@ async function getDayConversation(conversation: MyConversation, ctx: MyContext) 
     .map((c) => `${c.index}. ${c.discipline} [${c.room}]`)
     .join("\n");
 
-  await ctx.reply(`📅 *${target}*\n\n${text}`, { parse_mode: "Markdown" });
+    const weekday = getWeekdayName(target);
+
+    await ctx.reply(`📅 *${target} (${weekday})*\n\n${text}`, { 
+    parse_mode: "Markdown" 
+    });
 }
 
 // Register conversations
@@ -103,10 +107,11 @@ bot.command("week", async (ctx) => {
     const day = schedule.find((s) => s.date === date);
     if (day) {
       found = true;
+      const weekday = getWeekdayName(date);
       const dayText = day.classes
         .map((c) => `  ${c.index}. ${c.discipline} [${c.room}]`)
         .join("\n");
-      response += `*${date}*\n${dayText}\n\n`;
+      response += `*${date} (${weekday})*\n${dayText}\n\n`;
     }
   }
 

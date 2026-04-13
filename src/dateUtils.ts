@@ -55,3 +55,8 @@ export function parseUserInputToDate(input: string, activeWeekDates: string[]): 
 
   return null;
 }
+
+export function getWeekdayName(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", { weekday: "long" });
+}
