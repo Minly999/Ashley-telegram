@@ -1,5 +1,5 @@
-import redis from "./redis.js";
-import { Class } from "./types.js";
+import redis from "../../core/redis.js";
+import { Class } from "../../core/types.js";
 
 export async function saveDaySchedule(userId: number, date: string, classes: Class[]): Promise<void> {
   const key = `schedule:${userId}`;
@@ -30,7 +30,7 @@ export async function getFullSchedule(userId: number): Promise<{ date: string; c
 
   const schedule = Object.entries(rawData).map(([date, classesString]) => ({
     date,
-    classes: JSON.parse(classesString) as Class[]
+    classes: JSON.parse(classesString as string) as Class[]
   }));
 
   return schedule.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());

@@ -1,4 +1,4 @@
-import { Schedule, Class } from "./types.js";
+import { Schedule, Class } from "../../core/types.ts";
 
 export function parseScheduleProtocol(rawText: string): Schedule {
   if (!rawText || rawText.trim() === "") {
