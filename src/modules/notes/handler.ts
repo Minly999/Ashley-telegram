@@ -1,4 +1,3 @@
-// src/modules/notes/handlers.ts
 import { Keyboard } from "grammy";
 import { MyContext, MyConversation } from "../../core/types.js";
 import { addDiscipline, getDisciplines, deleteDiscipline } from "./database.js";
@@ -11,7 +10,12 @@ export async function addDisciplineConv(conversation: MyConversation, ctx: MyCon
   const { message } = await conversation.waitFor("message:text");
   const name = message.text.trim();
 
-  // The database handles the case-insensitive duplication check
+  // Enforce 50-byte length limit for callback data safety
+  if (Buffer.byteLength(name, 'utf8') > 50) {
+    await ctx.reply("❌ This name is too long for Telegram buttons. Please use a shorter name or an abbreviation.");
+    return;
+  }
+
   const success = await addDiscipline(ctx.from!.id, name);
   
   if (success) {
@@ -29,7 +33,6 @@ export async function deleteDisciplineConv(conversation: MyConversation, ctx: My
     return;
   }
 
-  // Build a custom keyboard with all existing disciplines
   const keyboard = new Keyboard();
   disciplines.forEach(d => keyboard.text(d).row());
 
@@ -44,7 +47,6 @@ export async function deleteDisciplineConv(conversation: MyConversation, ctx: My
   const { message } = await conversation.waitFor("message:text");
   const selected = message.text.trim();
 
-  // Validate that they didn't just type random text instead of using the buttons
   if (!disciplines.includes(selected)) {
     await ctx.reply("❌ Invalid discipline selected. Deletion cancelled.", { 
       reply_markup: { remove_keyboard: true } 
@@ -61,7 +63,6 @@ export async function deleteDisciplineConv(conversation: MyConversation, ctx: My
 // --- COMMAND HANDLERS ---
 
 export function setupNotesModule(bot: any) {
-  // 1. List all disciplines
   bot.command("disciplines", async (ctx: MyContext) => {
     const disciplines = await getDisciplines(ctx.from!.id);
     if (disciplines.length === 0) {
@@ -71,12 +72,10 @@ export function setupNotesModule(bot: any) {
     await ctx.reply(`📚 *Your Disciplines:*\n\n${list}`, { parse_mode: "Markdown" });
   });
 
-  // 2. Start the Add Conversation
   bot.command("addalias", async (ctx: MyContext) => {
     await ctx.conversation.enter("addDisciplineConv");
   });
 
-  // 3. Start the Delete Conversation
   bot.command("deletealias", async (ctx: MyContext) => {
     await ctx.conversation.enter("deleteDisciplineConv");
   });
