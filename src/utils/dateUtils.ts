@@ -31,7 +31,7 @@ export function getActiveWeekDates(): string[] {
 export function parseUserInputToDate(input: string, activeWeekDates: string[]): string | null {
   const cleanInput = input.trim().toLowerCase();
   
-  // Try to match weekdays
+  // Try to match weekdays (Restricted to active week)
   const weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
   const dayIndex = weekdays.indexOf(cleanInput);
   
@@ -42,15 +42,21 @@ export function parseUserInputToDate(input: string, activeWeekDates: string[]): 
     return activeWeekDates[adjustedIndex] || null;
   }
 
-  // Try to match MM/DD format
+  // Try to match YYYY-MM-DD format directly (Any date)
+  const fullDateMatch = cleanInput.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (fullDateMatch) {
+    return cleanInput;
+  }
+
+  // Try to match MM/DD format (Any date)
   const dateMatch = cleanInput.match(/^(\d{1,2})\/(\d{1,2})$/);
   if (dateMatch) {
-    const month = dateMatch[1]?.padStart(2, '0');
-    const day = dateMatch[2]?.padStart(2, '0');
+    const month = dateMatch[1].padStart(2, '0');
+    const day = dateMatch[2].padStart(2, '0');
+    const currentYear = new Date().getFullYear();
     
-    // Find the matching date in the active week
-    const matchedDate = activeWeekDates.find(d => d.endsWith(`-${month}-${day}`));
-    if (matchedDate) return matchedDate;
+    // Return the formatted string directly to allow ANY date in the database
+    return `${currentYear}-${month}-${day}`;
   }
 
   return null;
