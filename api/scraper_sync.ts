@@ -9,8 +9,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // 2. The Security Check
   // We look for a custom header named 'x-sync-secret'
-  const providedSecret = req.headers["x-sync-secret"];
-  if (!providedSecret || providedSecret !== process.env.SYNC_SECRET) {
+  const providedSecret = req.headers["SCRAPE"];
+  if (!providedSecret || providedSecret !== process.env.SCRAPE) {
     console.warn("🛑 Unauthorized sync attempt.");
     return res.status(401).json({ error: "Unauthorized" });
   }
