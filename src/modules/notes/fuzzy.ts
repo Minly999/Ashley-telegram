@@ -20,11 +20,9 @@ export function levenshtein(a: string, b: string): number {
 export function findSubjectMatch(input: string, disciplines: string[]): { matchType: 'exact' | 'fuzzy' | 'none', matchName?: string } {
   const lowerInput = input.trim().toLowerCase();
   
-  // 1. Check for exact match first
   const exactMatch = disciplines.find(d => d.toLowerCase() === lowerInput);
   if (exactMatch) return { matchType: 'exact', matchName: exactMatch };
 
-  // 2. Check for fuzzy match
   let bestMatch = '';
   let lowestDistance = Infinity;
 
@@ -36,7 +34,7 @@ export function findSubjectMatch(input: string, disciplines: string[]): { matchT
     }
   }
 
-  // If the typo is minor (e.g., 1 or 2 letters off, depending on word length)
+  // Allow fuzzy match if distance is proportional to input length
   const maxAllowedDistance = Math.max(1, Math.floor(input.length / 3)); 
   if (lowestDistance <= maxAllowedDistance) {
     return { matchType: 'fuzzy', matchName: bestMatch };
