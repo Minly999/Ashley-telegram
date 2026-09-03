@@ -1,10 +1,7 @@
-// src/modules/schedule/handlers.ts
 import { MyContext, MyConversation } from "../../core/types.js";
 import { parseScheduleProtocol } from "./parser.js";
 import { saveDaySchedule, getDaySchedule, getFullSchedule } from "./storage.js";
 import { getActiveWeekDates, parseUserInputToDate, getWeekdayName } from "../../utils/dateUtils.js";
-
-// --- CONVERSATIONS ---
 
 export async function addScheduleConversation(conversation: MyConversation, ctx: MyContext) {
   await ctx.reply("Paste the schedule block (Format: Date followed by Index | Discipline | Room):");
@@ -17,9 +14,9 @@ export async function addScheduleConversation(conversation: MyConversation, ctx:
     for (const day of schedule) {
       await saveDaySchedule(ctx.from!.id, day.date, day.classes);
     }
-    await ctx.reply(`✅ Successfully saved ${schedule.length} day(s).`);
+    await ctx.reply(`Successfully saved ${schedule.length} day(s).`);
   } catch (e) {
-    await ctx.reply(`❌ Parsing Error: ${(e as Error).message}`);
+    await ctx.reply(`Parsing Error: ${(e as Error).message}`);
   }
 }
 
@@ -33,13 +30,13 @@ export async function getDayConversation(conversation: MyConversation, ctx: MyCo
   const target = parseUserInputToDate(message.text, activeDates);
 
   if (!target) {
-    return ctx.reply("❌ Invalid day or date for the active week.");
+    return ctx.reply("Invalid day or date for the active week.");
   }
 
   const classes = await getDaySchedule(ctx.from!.id, target);
   
   if (!classes || classes.length === 0) {
-    return ctx.reply(`📅 ${target}: No classes found.`);
+    return ctx.reply(`${target}: No classes found.`);
   }
 
   const text = classes
@@ -48,12 +45,10 @@ export async function getDayConversation(conversation: MyConversation, ctx: MyCo
 
   const weekday = getWeekdayName(target);
 
-  await ctx.reply(`📅 *${target} (${weekday})*\n\n${text}`, { 
+  await ctx.reply(`*${target} (${weekday})*\n\n${text}`, { 
     parse_mode: "Markdown" 
   });
 }
-
-// --- COMMANDS ---
 
 export function setupScheduleModule(bot: any) {
   bot.command("add", (ctx: MyContext) => ctx.conversation.enter("addScheduleConversation"));
@@ -63,7 +58,7 @@ export function setupScheduleModule(bot: any) {
     const activeDates = getActiveWeekDates();
     const schedule = await getFullSchedule(ctx.from!.id);
 
-    let response = "🗓 *Active Week Schedule*\n\n";
+    let response = "Active Week Schedule\n\n";
     let found = false;
 
     for (const date of activeDates) {

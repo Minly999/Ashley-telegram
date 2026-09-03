@@ -1,4 +1,3 @@
-// src/bot.ts
 import { Bot, session } from "grammy";
 import { RedisAdapter } from "@grammyjs/storage-redis";
 import { conversations, createConversation } from "@grammyjs/conversations";
@@ -12,13 +11,13 @@ import { MyContext } from "./core/types.js";
 import { addScheduleConversation, getDayConversation, setupScheduleModule } from "./modules/schedule/handler.js";
 
 // Modules: Notes
-import { addDisciplineConv, deleteDisciplineConv, setupNotesModule } from "./modules/notes/handler.js"; // Note: you spelled it handler.js in your imports, adjust if it's handlers.js
+import { addDisciplineConv, deleteDisciplineConv, setupNotesModule } from "./modules/notes/handler.js";
 import { setupNotesViewer } from "./modules/notes/viewer.js";
 import { setupNoteReceiver } from "./modules/notes/receiver.js";
 
 const bot = new Bot<MyContext>(config.BOT_TOKEN);
 
-// --- 1. MIDDLEWARE ---
+// --- Middleware ---
 bot.use(
   session({
     initial: () => ({}),
@@ -27,7 +26,7 @@ bot.use(
 );
 bot.use(conversations());
 
-// --- 2. CONVERSATIONS ---
+// --- Conversations ---
 // Schedule
 bot.use(createConversation(addScheduleConversation));
 bot.use(createConversation(getDayConversation));
@@ -35,15 +34,15 @@ bot.use(createConversation(getDayConversation));
 bot.use(createConversation(addDisciplineConv));
 bot.use(createConversation(deleteDisciplineConv));
 
-// --- 3. COMMANDS & UI ---
+// --- Handlers & Modules ---
 setupScheduleModule(bot);
 setupNotesModule(bot);
 setupNotesViewer(bot);
 
-// --- 4. THE INTERCEPTOR (MUST BE LAST) ---
+// Catch-all message text interceptor for quick-saving notes
 setupNoteReceiver(bot);
 
-// --- 5. ERROR HANDLING ---
+// --- Error Handling ---
 bot.catch((err) => {
   console.error(`Update ${err.ctx.update.update_id} error:`, err.error);
 });

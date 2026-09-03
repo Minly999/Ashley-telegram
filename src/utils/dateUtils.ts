@@ -1,17 +1,15 @@
 export function getActiveWeekDates(): string[] {
   const now = new Date();
-  const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const day = now.getDay(); 
   const targetMonday = new Date(now);
 
+  // Determine Monday of the active schedule week
   if (day === 0) {
-    // Sunday: Next Monday is +1 day
-    targetMonday.setDate(now.getDate() + 1);
+    targetMonday.setDate(now.getDate() + 1); // Sunday: Shift to next Monday
   } else if (day === 6) {
-    // Saturday: Next Monday is +2 days
-    targetMonday.setDate(now.getDate() + 2);
+    targetMonday.setDate(now.getDate() + 2); // Saturday: Shift to next Monday
   } else {
-    // Mon-Fri: Current Monday is -(day - 1) days
-    targetMonday.setDate(now.getDate() - (day - 1));
+    targetMonday.setDate(now.getDate() - (day - 1)); // Mon-Fri: Shift back to current Monday
   }
 
   const dates: string[] = [];
@@ -19,7 +17,7 @@ export function getActiveWeekDates(): string[] {
     const d = new Date(targetMonday);
     d.setDate(targetMonday.getDate() + i);
     
-    // Format to YYYY-MM-DD strictly
+    // Format to YYYY-MM-DD
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const dateStr = String(d.getDate()).padStart(2, '0');
@@ -31,31 +29,28 @@ export function getActiveWeekDates(): string[] {
 export function parseUserInputToDate(input: string, activeWeekDates: string[]): string | null {
   const cleanInput = input.trim().toLowerCase();
   
-  // Try to match weekdays (Restricted to active week)
   const weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
   const dayIndex = weekdays.indexOf(cleanInput);
   
   if (dayIndex !== -1) {
-    // Return the corresponding date from the active week array
-    // activeWeekDates[0] is Monday, so we adjust the index
+    // Map weekday index to activeWeekDates array index (where index 0 is Monday)
     const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1; 
     return activeWeekDates[adjustedIndex] || null;
   }
 
-  // Try to match YYYY-MM-DD format directly (Any date)
+  // YYYY-MM-DD format
   const fullDateMatch = cleanInput.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (fullDateMatch) {
     return cleanInput;
   }
 
-  // Try to match MM/DD format (Any date)
+  // MM/DD format
   const dateMatch = cleanInput.match(/^(\d{1,2})\/(\d{1,2})$/);
   if (dateMatch) {
     const month = dateMatch[1].padStart(2, '0');
     const day = dateMatch[2].padStart(2, '0');
     const currentYear = new Date().getFullYear();
     
-    // Return the formatted string directly to allow ANY date in the database
     return `${currentYear}-${month}-${day}`;
   }
 
