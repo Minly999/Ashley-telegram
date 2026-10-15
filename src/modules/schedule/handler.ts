@@ -104,7 +104,6 @@ export async function getDayConversation(conversation: MyConversation, ctx: MyCo
 
   const text = classes
     .map((c) => `${getClassEmoji(c.discipline)} *Пара ${c.index}*:${c.discipline}\n   📍 *Аудиторія*: \`${c.room}\``)
-    .map((c) => `${getClassEmoji(c.discipline)} *Пара ${c.index}*:${c.discipline}\n   📍 *Аудиторія*: \`${c.room}\``)
     .join("\n\n");
 
   await ctx.reply(
@@ -133,7 +132,6 @@ export function setupScheduleModule(bot: any) {
         const displayDate = formatDisplayDate(date);
         const weekday = getWeekdayName(date);
         const dayText = day.classes
-          .map((c) => `  ${getClassEmoji(c.discipline)} *Пара ${c.index}*: ${c.discipline} [\`${c.room}\`]`)
           .map((c) => `  ${getClassEmoji(c.discipline)} *Пара ${c.index}*: ${c.discipline} [\`${c.room}\`]`)
           .join("\n");
         response += `📅 *${displayDate} (${weekday})*\n${dayText}\n\n`;
