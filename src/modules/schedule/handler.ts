@@ -8,16 +8,18 @@ import {
   formatDisplayDate 
 } from "../../utils/dateUtils.js";
 
-// Safe pool of study, fun, and vibrant emojis
-const RANDOM_EMOJIS = [
-  "⚡", "✨", "🚀", "🎯", "🪐", "💡", "🔥", "☕",
-  "📚", "🎓", "🎨", "🧩", "🔬", "💻", "🧠", "🎒",
-  "⭐", "🍕", "🍀", "👾", "🦊", "🔮", "🥑", "🏆"
-];
+// Maps university class types to user-defined emojis
+function getClassEmoji(discipline: string): string {
+  const d = discipline.toLowerCase();
 
-function getRandomEmoji(): string {
-  const index = Math.floor(Math.random() * RANDOM_EMOJIS.length);
-  return RANDOM_EMOJIS[index];
+  if (/лекц|лек\.|(?:\(|\[|\s)лек(?:\)|\]|\s|$)/i.test(d)) return "📖";
+  if (/сем|семінар/i.test(d)) return "🗣";
+  if (/лаб/i.test(d)) return "💻";
+  if (/практ|пр\.|(?:\(|\[|\s)пр(?:\)|\]|\s|$)/i.test(d)) return "👐";
+  if (/залік/i.test(d)) return "🧘";
+  if (/іспит|екзамен/i.test(d)) return "📝";
+
+  return "🔹"; // Fallback for unspecified entries
 }
 
 export async function addScheduleConversation(conversation: MyConversation, ctx: MyContext) {
@@ -75,9 +77,8 @@ export async function getDayConversation(conversation: MyConversation, ctx: MyCo
     );
   }
 
-  // Uses a new random emoji for each individual class
   const text = classes
-    .map((c) => `${getRandomEmoji()} *Пара ${c.index}*:${c.discipline}\n   📍 *Аудиторія*: \`${c.room}\``)
+    .map((c) => `${getClassEmoji(c.discipline)} *Пара ${c.index}*:${c.discipline}\n   📍 *Аудиторія*: \`${c.room}\``)
     .join("\n\n");
 
   await ctx.reply(
@@ -106,7 +107,7 @@ export function setupScheduleModule(bot: any) {
         const displayDate = formatDisplayDate(date);
         const weekday = getWeekdayName(date);
         const dayText = day.classes
-          .map((c) => `  ${getRandomEmoji()} *Пара ${c.index}*: ${c.discipline} [\`${c.room}\`]`)
+          .map((c) => `  ${getClassEmoji(c.discipline)} *Пара ${c.index}*: ${c.discipline} [\`${c.room}\`]`)
           .join("\n");
         response += `📅 *${displayDate} (${weekday})*\n${dayText}\n\n`;
       }
