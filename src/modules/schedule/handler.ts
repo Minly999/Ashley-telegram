@@ -10,16 +10,41 @@ import {
 
 // Maps university class types to user-defined emojis
 function getClassEmoji(discipline: string): string {
-  const d = discipline.toLowerCase();
+  // Extract text inside the last set of parentheses: "Філософія (Л)" -> "л"
+  const bracketMatch = discipline.match(/\(([^)]+)\)[^(]*$/);
 
-  if (/лекц|лек\.|(?:\(|\[|\s)лек(?:\)|\]|\s|$)/i.test(d)) return "📖";
-  if (/сем|семінар/i.test(d)) return "🗣";
-  if (/лаб/i.test(d)) return "💻";
-  if (/практ|пр\.|(?:\(|\[|\s)пр(?:\)|\]|\s|$)/i.test(d)) return "👐";
+  if (bracketMatch) {
+    const tag = bracketMatch[1].trim().toLowerCase();
+
+    // 1. Lab: "Лаб" (checked first because both lab and lecture start with 'л')
+    if (tag.startsWith("лаб")) return "💻";
+
+    // 2. Lecture: "Л", "Лек", "Лекція"
+    if (tag.startsWith("л")) return "📖";
+
+    // 3. Seminar: "Сем", "С"
+    if (tag.startsWith("с")) return "🗣";
+
+    // 4. Practice: "Пр", "П"
+    if (tag.startsWith("п")) return "👐";
+
+    // 5. Credit: anything with 'з' ("Зал", "Залік", "З", "Диф.зал")
+    if (tag.includes("з")) return "🧘";
+
+    // 6. Exam: starts with 'і', 'е', or 'є' ("Екз", "Ісп", "Е", "І")
+    if (tag.startsWith("е") || tag.startsWith("є") || tag.startsWith("і")) return "📝";
+  }
+
+  // Fallback for manual inputs without brackets (e.g. from /add)
+  const d = discipline.toLowerCase();
+  if (/лаборатор/i.test(d)) return "💻";
+  if (/лекц/i.test(d)) return "📖";
+  if (/семін/i.test(d)) return "🗣";
+  if (/практ/i.test(d)) return "👐";
   if (/залік/i.test(d)) return "🧘";
   if (/іспит|екзамен/i.test(d)) return "📝";
 
-  return "🔹"; // Fallback for unspecified entries
+  return "🔹";
 }
 
 export async function addScheduleConversation(conversation: MyConversation, ctx: MyContext) {
